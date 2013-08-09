@@ -55,7 +55,6 @@ package
 		public function destroy():void
 		{
 			FP.world.recycle(this);
-			trace("Bullet destroyed");
 		}
 	}
 }

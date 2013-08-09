@@ -22,7 +22,6 @@ package
 		
 		private var _player:PlayerLord;
 		private var _mapGrid:Grid;
-		private var _enemyList:Vector.<Enemy>;
 		
 		public function ButtWorld()
 		{
@@ -71,8 +70,15 @@ package
 			
 			//Add the player at the player start
 			_player = new PlayerLord();
-			_player.x = mapXML.Entities.PlayerStart.@x;
-			_player.y = mapXML.Entities.PlayerStart.@y;
+			_player.x = mapXML.Entities.Player.@x;
+			_player.y = mapXML.Entities.Player.@y;
+			
+			for each (var dog:XML in mapXML.Entities.Dog)
+			{
+				var newEn:Dog = create(Dog) as Dog;
+				newEn.x = dog.@x;
+				newEn.y = dog.@y;
+			}
 			
 			return true;
 		}

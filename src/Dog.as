@@ -5,6 +5,7 @@ package
 	import net.flashpunk.Sfx;
 	import net.flashpunk.utils.Input;
 	import net.flashpunk.utils.Key;
+	import net.flashpunk.FP;
 	
 	public class Dog extends Enemy
 	{
@@ -34,20 +35,50 @@ package
 		override public function update():void
 		{
 			super.update();
-			var player = world.getInstance("player") as PlayerLord;
+			var player:PlayerLord = world.getInstance("player") as PlayerLord;
 			
-			if (Input.mousePressed)
+			if (Input.pressed(Key.SPACE))
 			{
 				sprDog.play("breathe", true);
 				breath.play();
 			}
+			
+			var dX:Number = this.x - player.x;
+			var dY:Number = this.y - player.y;
+			
 			if (onTheGround)
 			{
-				if ((this.y - player.y) > 96)
+				if (dX > 64)
+				{
+					xVelocity = -4;
+				}
+				else if (dX < -64)
+				{
+					xVelocity = 4;
+				}
+				if ((dY) > 96)
 				{
 					yVelocity -= jumpPower; //jump!
-					
 				}
+			}
+			else
+			{
+				if (!xVelocity)
+				{
+					if (dX > 64)
+					{
+						xVelocity = -1;
+					}
+					else if (dX < -64)
+					{
+						xVelocity = 1;
+					}
+				}
+			}
+			
+			if (collide("bullet", x, y))
+			{
+				FP.world.recycle(this);
 			}
 			
 			moveBy(xVelocity, yVelocity, "wall");
