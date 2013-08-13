@@ -7,15 +7,20 @@ package
 	{
 		protected const gravity:Number = 1;
 		protected const jumpPower:Number = 10;
+		//"enum" of states
+		protected static const STANDING:uint = 0;
+		protected static const ATTACKING:uint = 1;
 		
 		protected var xVelocity:Number = 0;
 		protected var yVelocity:Number = 0;
 		protected var onTheGround:Boolean = false;
+		protected var state:uint = STANDING;
 		
 		protected var player:PlayerLord;
 		
 		public function Enemy()
 		{
+			super();
 		}
 		
 		override public function update():void
