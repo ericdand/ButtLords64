@@ -52,33 +52,42 @@ package
 				{
 					xVelocity = -4;
 				}
-				else if (dX < -64)
+				else if (dX < -32)
 				{
 					xVelocity = 4;
 				}
-				if ((dY) > 96)
+				else
+				{
+					//TODO: Player is in range! Attack!
+				}
+				
+				if (collide("wall", x + FP.sign(xVelocity), y))
 				{
 					yVelocity -= jumpPower; //jump!
 				}
 			}
 			else
 			{
+				//Maintain momentum, but move slower in the air.
 				if (!xVelocity)
 				{
-					if (dX > 64)
+					if (dX > 30)
 					{
 						xVelocity = -1;
 					}
-					else if (dX < -64)
+					else if (dX < -20)
 					{
 						xVelocity = 1;
 					}
 				}
 			}
 			
-			if (collide("bullet", x, y))
+			var bullet:Bullet = collide("bullet", x, y) as Bullet;
+			
+			if (bullet)
 			{
 				FP.world.recycle(this);
+				bullet.destroy();
 			}
 			
 			moveBy(xVelocity, yVelocity, "wall");
