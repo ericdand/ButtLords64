@@ -5,8 +5,9 @@ package
 	
 	public class Enemy extends Entity
 	{
-		protected const gravity:Number = 1;
-		protected const jumpPower:Number = 10;
+		protected const GRAVITY:Number = 1;
+		protected const JUMP_POWER:Number = 10;
+		protected const MOVE_SPEED:Number = 3;
 		//"enum" of states
 		protected static const STANDING:uint = 0;
 		protected static const ATTACKING:uint = 1;
@@ -21,6 +22,8 @@ package
 		public function Enemy()
 		{
 			super();
+			
+			name = "enemy";
 		}
 		
 		override public function update():void
@@ -43,7 +46,7 @@ package
 			{
 				if (yVelocity < 16)
 				{
-					yVelocity += gravity;
+					yVelocity += GRAVITY;
 				}
 			}
 			

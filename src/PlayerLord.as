@@ -10,12 +10,19 @@ package
 	{
 		[Embed(source = "assets/ButtLord64.png")] private const PLAYER:Class;
 		
-		private const gravity:Number = 1;
-		private const jumpPower:Number = 12;
+		private const GRAVITY:Number = 1;
+		private const JUMP_POWER:Number = 12;
+		private const MOVE_SPEED:Number = 4;
+		
+		//"enum" of states
+		protected static const STANDING:uint = 0;
+		protected static const DAMAGED:uint = 1;
 		
 		private var xVelocity:Number = 0;
 		private var yVelocity:Number = 0;
 		private var onTheGround:Boolean = false;
+		private var health:int = 10;
+		private var state:uint;
 		
 		public function PlayerLord()
 		{
@@ -29,7 +36,7 @@ package
 		{
 			//trace("Player updates.");
 			
-			if (this.collide("wall", x, y + 1))
+			if (state == STANDING && this.collide("wall", x, y + 1))
 			{
 				onTheGround = true;
 				yVelocity = 0;
@@ -40,20 +47,27 @@ package
 			}
 			if (onTheGround)
 			{
-				if(Input.pressed(Key.UP)) yVelocity -= jumpPower;
+				if(Input.pressed(Key.UP)) yVelocity -= JUMP_POWER;
 			}
 			else
 			{
 				if (yVelocity < 16)
 				{
-					if (Input.check(Key.UP)) yVelocity += gravity/2;
-					else yVelocity += gravity;
+					if (Input.check(Key.UP)) yVelocity += GRAVITY/2;
+					else yVelocity += GRAVITY;
 				}
 			}
 			
-			if (Input.check(Key.RIGHT)) xVelocity = 5;
-			else if (Input.check(Key.LEFT)) xVelocity = -5;
-			else xVelocity *= 0.6;
+			if (state == STANDING)
+			{
+				if (Input.check(Key.RIGHT)) xVelocity = MOVE_SPEED;
+				else if (Input.check(Key.LEFT)) xVelocity = -MOVE_SPEED;
+				else xVelocity *= 0.6;
+			}
+			else
+			{
+				state = STANDING;
+			}
 			
 			moveBy(xVelocity, yVelocity, "wall");
 			
@@ -74,6 +88,20 @@ package
 		{
 			yVelocity = 0;
 			return true;
+		}
+		
+		public function takeDamage(enemy:Enemy, damage:uint):void
+		{
+			state = DAMAGED;
+			
+			health -= damage;
+			trace(health);
+			
+			var bounceSpeed:Number = 10 * damage; // Get knocked back farther the more damage is taken
+			
+			xVelocity = FP.sign(this.x - enemy.x) * bounceSpeed;
+			yVelocity = bounceSpeed * -0.75;
+			onTheGround = false;
 		}
 		
 		/* These are useless in light of the "moveBy" function.

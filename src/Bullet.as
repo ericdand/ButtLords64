@@ -11,7 +11,7 @@ package
 		private var vX:Number;
 		private var vY:Number;
 		
-		private const speed:Number = 400;
+		private const SPEED:Number = 10; // in pixels per frame
 		
 		public function Bullet()
 		{
@@ -46,7 +46,7 @@ package
 			
 			var dX:Number = FP.world.mouseX - x;
 			var dY:Number = FP.world.mouseY - y;
-			var scaleFactor:Number = 10 / Math.sqrt(dX * dX + dY * dY);
+			var scaleFactor:Number = SPEED / Math.sqrt(dX * dX + dY * dY);
 			
 			vX = dX * scaleFactor;
 			vY = dY * scaleFactor;
