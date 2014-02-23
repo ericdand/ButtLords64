@@ -1,7 +1,6 @@
 package 
 {
 	import flash.geom.Rectangle;
-	import net.flashpunk.Entity;
 	import net.flashpunk.graphics.Tilemap;
 	import net.flashpunk.masks.Grid;
 	import net.flashpunk.World;
@@ -22,11 +21,13 @@ package
 		
 		private var _player:PlayerLord;
 		private var _mapGrid:Grid;
+		private var enemies:Vector.<Enemy>;
 		
 		public function ButtWorld()
 		{
 			trace("initializing ButtWorld");
 			
+			enemies = new Vector.<Enemy>();
 			loadMap(LEVEL);
 			
 			var i:Image = new Image(_mapGrid.data);
@@ -43,6 +44,15 @@ package
 			super.update();
 			
 			followPlayerWithCamera();
+			
+			for each (var enemy:Enemy in enemies) {
+				var bullet:Bullet = enemy.collide(
+						"bullet", enemy.x, enemy.y) as Bullet;				
+				if (bullet) {
+					recycle(enemy);
+					bullet.destroy();
+				}
+			}
 		}
 		
 		private function followPlayerWithCamera():void
@@ -78,6 +88,7 @@ package
 				var newEn:Dog = create(Dog) as Dog;
 				newEn.x = dog.@x;
 				newEn.y = dog.@y;
+				enemies.push(newEn);
 			}
 			
 			return true;

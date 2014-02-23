@@ -17,10 +17,10 @@ package
 		
 		private const DAMAGE_DONE:uint = 1;
 		
-		public var sprDog:Spritemap = new Spritemap(DOG, 55, 29, callback);
+		public var sprDog:Spritemap = new Spritemap(DOG, 55, 29, callback); 
 		
-		//An animation callback-- allows hit-testing when the dog has breathed all the way out
-		public function callback():void {
+		private function callback():void {
+			//An animation callback-- allows hit-testing when the dog has breathed all the way out
 			if (sprDog.currentAnim == "breathe-out-right")
 			{
 				hitTest(0);
@@ -116,14 +116,6 @@ package
 			else if (state == ATTACKING)
 			{
 				
-			}
-			
-			var bullet:Bullet = collide("bullet", x, y) as Bullet;
-			
-			if (bullet)
-			{
-				FP.world.recycle(this);
-				bullet.destroy();
 			}
 			
 			moveBy(xVelocity, yVelocity, "wall");

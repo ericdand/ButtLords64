@@ -66,60 +66,6 @@ package
 			yVelocity = 0;
 			return true;
 		}
-		
-		/* These are useless in light of the "moveBy" function.
-		protected function applyXTransformation():void
-		{
-			for (var i:int = 0; i < Math.abs(xVelocity); i++)
-			{
-				if (xVelocity > 0)
-				{
-					//Going right
-					if (this.collide("wall", x + i, y))
-					{
-						xVelocity = i - 1;
-						break;
-					}
-				}
-				else
-				{
-					//Going left
-					if (this.collide("wall", x - i, y))
-					{
-						xVelocity = -i + 1;
-						break;
-					}
-				}
-			}
-			this.x += xVelocity;
-		}
-		
-		protected function applyYTransformation():void
-		{
-			for (var i:int = 0; i <= Math.abs(yVelocity); i++)
-			{
-				if (yVelocity < 0)
-				{
-					//Going up
-					if (this.collide("wall", x, y - i))
-					{
-						yVelocity = -i + 1;
-						break;
-					}
-				}
-				else
-				{
-					//Going down
-					if (this.collide("wall", x, y + i))
-					{
-						yVelocity = i - 1;
-						break;
-					}
-				}
-			}
-			this.y += yVelocity;
-		}
-		*/
 	}
 }
 	
