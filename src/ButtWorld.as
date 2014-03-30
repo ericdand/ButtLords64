@@ -12,19 +12,19 @@ package {
     
     public class ButtWorld extends World {
         // OGMO-generated level
-        [Embed(source="ButtWorld.oel",mimeType="application/octet-stream")]
+        [Embed(source="ButtWorld2.oel",mimeType="application/octet-stream")]
         private static const LEVEL:Class;
         
         protected var map:Entity;
         
         private var _player:PlayerLord;
         private var _mapGrid:Grid;
-        private var enemies:Vector.<Enemy>;
+        private var _enemies:Vector.<Enemy>;
         
         public function ButtWorld() {
             trace("initializing ButtWorld");
             
-            enemies = new Vector.<Enemy>();
+            _enemies = new Vector.<Enemy>();
             loadMap(LEVEL);
             
             var i:Image = new Image(_mapGrid.data);
@@ -41,7 +41,7 @@ package {
             
             followPlayerWithCamera();
             
-            for each (var enemy:Enemy in enemies) {
+            for each (var enemy:Enemy in _enemies) {
                 var bullet:Bullet = enemy.collide("bullet", enemy.x, enemy.y) as Bullet;
                 if (bullet) {
                     recycle(enemy);
@@ -84,7 +84,7 @@ package {
                 var newEn:Dog = create(Dog) as Dog;
                 newEn.x = dog.@x;
                 newEn.y = dog.@y;
-                enemies.push(newEn);
+                _enemies.push(newEn);
             }
             
             return true;

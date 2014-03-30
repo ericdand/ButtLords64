@@ -1,12 +1,14 @@
 package {
-    import net.flashpunk.Entity;
-    import net.flashpunk.graphics.Image;
-    import net.flashpunk.Sfx;
-    import net.flashpunk.utils.Input;
-    import net.flashpunk.utils.Key;
-    import net.flashpunk.FP;
+	import net.flashpunk.Entity;
+	import net.flashpunk.FP;
+	import net.flashpunk.graphics.Image;
+	import net.flashpunk.Sfx;
+	import net.flashpunk.utils.Input;
+	import net.flashpunk.utils.Key;
+	
+	import util.EricsUtils;
     
-    public class PlayerLord extends Entity {
+    public class PlayerLord extends BLEntity {
         [Embed(source="assets/ButtLord64.png")]
         private const PLAYER:Class;
         [Embed(source="sound/ow1.mp3")]
@@ -15,23 +17,19 @@ package {
         private const OW2:Class;
         [Embed(source="sound/ow3.mp3")]
         private const OW3:Class;
+		[Embed(source = "sound/spell1.mp3")]
+		private const SPELL1:Class;
+		[Embed(source = "sound/spell2.mp3")]
+		private const SPELL2:Class;
+		[Embed(source = "sound/spell3.mp3")]
+		private const SPELL3:Class;
+		
         private var ow1:Sfx = new Sfx(OW1);
         private var ow2:Sfx = new Sfx(OW2);
         private var ow3:Sfx = new Sfx(OW3);
-        
-        private const GRAVITY:Number = 1;
-        private const JUMP_POWER:Number = 12;
-        private const MOVE_SPEED:Number = 4;
-        
-        //"enum" of states
-        protected static const STANDING:uint = 0;
-        protected static const DAMAGED:uint = 1;
-        
-        private var xVelocity:Number = 0;
-        private var yVelocity:Number = 0;
-        private var onTheGround:Boolean = false;
-        private var health:int = 10;
-        private var state:uint;
+		private var spell1:Sfx = new Sfx(SPELL1);
+		private var spell2:Sfx = new Sfx(SPELL2);
+		private var spell3:Sfx = new Sfx(SPELL3);
         
         public function PlayerLord() {
             name = "player";
@@ -75,6 +73,8 @@ package {
             moveBy(xVelocity, yVelocity, "wall");
             
             if (Input.mousePressed) {
+				EricsUtils.oneOf(spell1, spell2, spell3).play();
+				
                 var b:Bullet = FP.world.create(Bullet) as Bullet;
                 b.setMovement();
             }
@@ -90,23 +90,19 @@ package {
             return true;
         }
         
-        public function takeDamage(enemy:Enemy, damage:uint):void {
-            state = DAMAGED;
-            oneOf(ow1, ow2, ow3).play();
+        override public function takeDamage(enemy:Enemy, damage:uint):void {
+            EricsUtils.oneOf(ow1, ow2, ow3).play();
             
-            health -= damage;
-            trace(health + " life left");
-            
-            var bounceSpeed:Number = 10 * damage; // Get knocked back farther the more damage is taken
-            
-            xVelocity = FP.sign(this.x - enemy.x) * bounceSpeed;
-            yVelocity = bounceSpeed * -0.75;
-            onTheGround = false;
+            super.takeDamage(enemy, damage);
+			
+			if (state == DEAD) {
+				die();
+			}
         }
-        
-        private function oneOf(... args):Object {
-            return args[(uint)(args.length * Math.random())];
-        }
+		
+		public function die():void {
+			
+		}
     
     }
 }

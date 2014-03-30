@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <OgmoVersion>2.1.0.6</OgmoVersion>
-  <Name>ButtLords64</Name>
+  <Name>ButtLords</Name>
   <BackgroundColor A="255" R="125" G="160" B="255" />
   <GridColor A="255" R="255" G="240" B="90" />
   <LevelDefaultSize>
@@ -9,14 +9,14 @@
     <Height>800</Height>
   </LevelDefaultSize>
   <LevelMinimumSize>
-    <Width>1280</Width>
-    <Height>768</Height>
+    <Width>640</Width>
+    <Height>400</Height>
   </LevelMinimumSize>
   <LevelMaximumSize>
-    <Width>64000</Width>
-    <Height>4000</Height>
+    <Width>12800</Width>
+    <Height>1600</Height>
   </LevelMaximumSize>
-  <Filename>C:\Users\Eric\Documents\GitHub\ButtLords64\src\ButtLords.oep</Filename>
+  <Filename>C:\Users\Eric\Documents\GitHub\ButtLords64\ogmo\ButtLords.oep</Filename>
   <AngleMode>Radians</AngleMode>
   <CameraEnabled>false</CameraEnabled>
   <CameraSize>
@@ -27,7 +27,7 @@
   <LevelValueDefinitions />
   <LayerDefinitions>
     <LayerDefinition xsi:type="GridLayerDefinition">
-      <Name>Wall</Name>
+      <Name>Walls</Name>
       <Grid>
         <Width>32</Width>
         <Height>32</Height>
@@ -62,7 +62,7 @@
         <X>0</X>
         <Y>0</Y>
       </Origin>
-      <ImageDefinition DrawMode="Image" ImagePath="assets\ButtLord64.png" Tiled="false">
+      <ImageDefinition DrawMode="Rectangle" ImagePath="" Tiled="false">
         <RectColor A="255" R="255" G="0" B="0" />
       </ImageDefinition>
       <ValueDefinitions />
@@ -70,14 +70,14 @@
     </EntityDefinition>
     <EntityDefinition Name="Dog" Limit="-1" ResizableX="false" ResizableY="false" Rotatable="false" RotateIncrement="15">
       <Size>
-        <Width>64</Width>
+        <Width>32</Width>
         <Height>32</Height>
       </Size>
       <Origin>
-        <X>0</X>
+        <X>32</X>
         <Y>0</Y>
       </Origin>
-      <ImageDefinition DrawMode="Image" ImagePath="assets\DogNoFire.png" Tiled="false">
+      <ImageDefinition DrawMode="Rectangle" ImagePath="" Tiled="false">
         <RectColor A="255" R="255" G="0" B="0" />
       </ImageDefinition>
       <ValueDefinitions />
