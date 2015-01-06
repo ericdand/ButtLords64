@@ -12,7 +12,7 @@ package {
     
     public class ButtWorld extends World {
         // OGMO-generated level
-        [Embed(source="ButtWorld2.oel",mimeType="application/octet-stream")]
+        [Embed(source="ButtWorld.oel",mimeType="application/octet-stream")]
         private static const LEVEL:Class;
         
         protected var map:Entity;

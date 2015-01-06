@@ -1,20 +1,17 @@
-package 
-{
+package {
 	import flash.display.BitmapData;
 	import net.flashpunk.Entity;
 	import net.flashpunk.graphics.Stamp;
 	import net.flashpunk.utils.Draw;
 	import net.flashpunk.FP;
 
-	public class Bullet extends Entity
-	{
+	public class Bullet extends Entity {
 		private var vX:Number;
 		private var vY:Number;
 		
 		private const SPEED:Number = 10; // in pixels per frame
 		
-		public function Bullet()
-		{
+		public function Bullet() {
 			type = "bullet";
 			setHitbox(8, 2, -2);
 			
@@ -27,19 +24,23 @@ package
 			graphic = s;
 		}
 		
-		override public function update():void
-		{
+		override public function update():void {
 			x += vX;
 			y += vY;
 			
-			if (x > FP.camera.x + FP.width + 50 || x < FP.camera.x - 50 || y > FP.camera.y + FP.height + 50 || y < FP.camera.y - 50)
-			{
+			if (x > FP.camera.x + FP.width + 50 || 
+					x < FP.camera.x - 50 || 
+					y > FP.camera.y + FP.height + 50 || 
+					y < FP.camera.y - 50) {
 				this.destroy();
 			}
 		}
 		
-		internal function setMovement():void
-		{
+		override public function added():void {
+			setMovement();
+		}
+		
+		private function setMovement():void {
 			var player:PlayerLord = FP.world.getInstance("player");
 			x = player.x + 16;
 			y = player.y + 32;
@@ -52,8 +53,7 @@ package
 			vY = dY * scaleFactor;
 		}
 		
-		public function destroy():void
-		{
+		public function destroy():void {
 			FP.world.recycle(this);
 		}
 	}

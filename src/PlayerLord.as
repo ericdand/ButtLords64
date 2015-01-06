@@ -76,7 +76,6 @@ package {
 				EricsUtils.oneOf(spell1, spell2, spell3).play();
 				
                 var b:Bullet = FP.world.create(Bullet) as Bullet;
-                b.setMovement();
             }
         }
         
@@ -101,7 +100,7 @@ package {
         }
 		
 		public function die():void {
-			
+			// TODO: Play dying animation and silly sound, prevent control
 		}
     
     }
