@@ -9,32 +9,63 @@ package {
     import net.flashpunk.graphics.Stamp;
     import net.flashpunk.utils.Draw;
     import net.flashpunk.Entity;
-    
+	import Solids.Slope;
+	
     public class ButtWorld extends World {
         // OGMO-generated level
-        [Embed(source="ButtWorld.oel",mimeType="application/octet-stream")]
-        private static const LEVEL:Class;
-        
+        [Embed(source = "../ogmo/PlayerHut.oel", mimeType = "application/octet-stream")] private static const LEVEL:Class;
+		
         protected var map:Entity;
-        
         private var _player:PlayerLord;
         private var _mapGrid:Grid;
         private var _enemies:Vector.<Enemy>;
         
         public function ButtWorld() {
-            trace("initializing ButtWorld");
+            trace("Initializing ButtWorld.");
             
             _enemies = new Vector.<Enemy>();
-            loadMap(LEVEL);
+            loadMapGrid(LEVEL);
             
             var i:Image = new Image(_mapGrid.data);
             i.scale = 32;
             map = new Entity(0, 0, i, _mapGrid);
             map.type = "wall";
-            
             add(map);
+			
+			createRamps();
+			
             add(_player);
         }
+		
+		private function createRamps():void {
+			var ramp:Slope;
+			for (var j:uint = 0; j < _mapGrid.columns; j++)
+			{
+				for (var i:uint = 0; i < _mapGrid.rows; i++)
+				{
+					// Empty space with a tile below
+					if (! _mapGrid.getTile(j, i) && _mapGrid.getTile(j, i + 1)) 
+					{
+						 // Solid square to the right, space to left
+						if (_mapGrid.getTile(j + 1, i) && !_mapGrid.getTile(j - 1, i))
+						{
+							// Type 0 slope goes from bottom-left to top-right
+							ramp = new Slope(j*_mapGrid.tileWidth, i*_mapGrid.tileHeight, 0);
+							ramp.type = "wall";
+							add(ramp);
+						}
+						// Solid square to the left, space to the right
+						else if (!_mapGrid.getTile(j + 1, i) && _mapGrid.getTile(j - 1, i))
+						{
+							// Type 1 slope goes from top-left to bottom-right
+							ramp = new Slope(j*_mapGrid.tileWidth, i*_mapGrid.tileHeight, 1);
+							ramp.type = "wall";
+							add(ramp);
+						}
+					}
+				}
+			}
+		}
         
         override public function update():void {
             super.update();
@@ -68,12 +99,12 @@ package {
                 camera.y += (dY - 200);
         }
         
-        private function loadMap(mapData:Class):Boolean {
+        private function loadMapGrid(mapData:Class):Boolean {
             var mapXML:XML = FP.getXML(mapData);
             
             //Create the map grid
             _mapGrid = new Grid(uint(mapXML.@width), uint(mapXML.@height), 32, 32, 0, 0);
-            _mapGrid.loadFromString(String(mapXML.Wall), "", "\n");
+            _mapGrid.loadFromString(String(mapXML.Ground), "", "\n");
             
             //Add the player at the player start
             _player = new PlayerLord();

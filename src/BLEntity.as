@@ -10,8 +10,8 @@ package {
     
     public class BLEntity extends Entity {
         protected const GRAVITY:Number = 1;
-        protected const JUMP_POWER:Number = 12;
-        protected const MOVE_SPEED:Number = 4;
+        protected const JUMP_POWER:Number = 10;
+        protected const MOVE_SPEED:Number = 3;
         
         //"enum" of states
         protected static const STANDING:uint = 1 << 0;
@@ -33,9 +33,7 @@ package {
         }
         
         override public function update():void {
-            //trace("Player updates.");
-            
-            if (state == STANDING && this.collide("wall", x, y + 1)) {
+			if (state == STANDING && this.collide("wall", x, y + 1)) {
                 onTheGround = true;
                 yVelocity = 0;
             } else {
@@ -54,12 +52,30 @@ package {
             yVelocity = 0;
             return true;
         }
+		
+		override public function moveBy(x:Number, y:Number, solidType:Object = null, sweep:Boolean = false):void
+		{
+			// Run through a slope
+			for (var s:int = 0; s <= MOVE_SPEED + 1; s ++)
+			{
+				// If we don't hit a solid in the direction we're moving, move.
+				if (!collideTypes(solidType, this.x + x, this.y - s)) 
+				{
+					// Move up the slope.
+					y -= s;
+					// Stop checking for slope (so we don't fly up into the air).
+					break;
+				}
+			}
+			super.moveBy(x, y, solidType, sweep);
+		}
         
         public function takeDamage(enemy:Enemy, damage:uint):void {
 			health -= damage;
             state = (health > 0 ? DAMAGED : DEAD);
-            
-            var bounceSpeed:Number = 10 * damage; // Get knocked back farther the more damage is taken
+			
+            // Get knocked back farther the more damage is taken.
+            var bounceSpeed:Number = 10 * damage;
             xVelocity = FP.sign(this.x - enemy.x) * bounceSpeed;
             yVelocity = bounceSpeed * -0.75;
             onTheGround = false;

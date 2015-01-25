@@ -39,14 +39,13 @@ package {
         }
         
         override public function update():void {
-            //trace("Player updates.");
-            
-            if (state == STANDING && this.collide("wall", x, y + 1)) {
+			if (state == STANDING && this.collide("wall", x, y + 1)) {
                 onTheGround = true;
                 yVelocity = 0;
             } else {
                 onTheGround = false;
             }
+			
             if (onTheGround) {
                 if (Input.pressed(Key.UP))
                     yVelocity -= JUMP_POWER;
@@ -77,16 +76,6 @@ package {
 				
                 var b:Bullet = FP.world.create(Bullet) as Bullet;
             }
-        }
-        
-        override public function moveCollideX(e:Entity):Boolean {
-            xVelocity = 0;
-            return true;
-        }
-        
-        override public function moveCollideY(e:Entity):Boolean {
-            yVelocity = 0;
-            return true;
         }
         
         override public function takeDamage(enemy:Enemy, damage:uint):void {
