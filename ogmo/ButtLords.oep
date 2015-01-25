@@ -27,7 +27,7 @@
   <LevelValueDefinitions />
   <LayerDefinitions>
     <LayerDefinition xsi:type="GridLayerDefinition">
-      <Name>TreeBranches</Name>
+      <Name>Platform</Name>
       <Grid>
         <Width>32</Width>
         <Height>32</Height>

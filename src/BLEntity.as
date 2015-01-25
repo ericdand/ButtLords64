@@ -66,21 +66,27 @@ package {
 			if (solidType)
 			{
 				var sign:int,
+					s:int,
 					e:Entity;
-				if (x) 
+				if (x != 0) 
 				{
-					// Run through a slope
-					for (var s:int = 0; s <= MOVE_SPEED + 1; s ++)
+					e = collideTypes(solidType, this.x + x, this.y);
+					if (e) // There is something directly in front of us.
 					{
-						e = collideTypes(solidType, this.x + x, this.y - s);
-						if (!e) // Found some free space a little above a solidType!
+						// Try to run up a slope.
+						for (s = 1; s <= MOVE_SPEED + 1; s++)
 						{
-							// Move up the slope.
-							y -= s;
-							// Stop checking for slope (so we don't fly up into the air).
-							break;
+							e = collideTypes(solidType, this.x + x, this.y - s);
+							if (!e) // Found some free space a little above a solidType!
+							{
+								// Move up the slope.
+								y -= s;
+								// Stop checking for slope (so we don't fly up into the air).
+								break;
+							}
 						}
 					}
+					
 					// We collided without being able to move up the slope,
 					// or are doing sweep collision.
 					if (e || sweep)
@@ -99,6 +105,7 @@ package {
 					}
 					else this.x += x;
 				}
+				
 				if (y != 0)
 				{
 					if (sweep || collideTypes(solidType, this.x, this.y + y))
@@ -134,10 +141,14 @@ package {
             xVelocity = FP.sign(this.x - enemy.x) * bounceSpeed;
             yVelocity = bounceSpeed * -0.75;
             onTheGround = false;
+			
+			if (state == DEAD) {
+				die();
+			}
         }
 		
-		private function die():void {
-			// Stop updating
+		public function die():void {
+			this.active = false;
 		}
     
     }

@@ -12,53 +12,75 @@ package {
 	import Solids.Slope;
 	
     public class ButtWorld extends World {
-        // OGMO-generated level
-        [Embed(source = "../ogmo/PlayerHut.oel", mimeType = "application/octet-stream")] private static const LEVEL:Class;
+        // OGMO-generated level XML.
+        [Embed(source = "../ogmo/PlayerHut.oel", mimeType = "application/octet-stream")]
+		private static const LEVEL:Class;
 		
         protected var map:Entity;
-        private var _player:PlayerLord;
-        private var _mapGrid:Grid;
-        private var _enemies:Vector.<Enemy>;
+        private var _player:PlayerLord = new PlayerLord();
+        private var _enemies:Vector.<Enemy> = new Vector.<Enemy>();
         
         public function ButtWorld() {
             trace("Initializing ButtWorld.");
             
-            _enemies = new Vector.<Enemy>();
-            loadMapGrid(LEVEL);
-            
-            var i:Image = new Image(_mapGrid.data);
+            var mapXML:XML = FP.getXML(LEVEL);
+			
+            // Load the ground/walls.
+            var mapGrid:Grid = new Grid(uint(mapXML.@width), uint(mapXML.@height), 32, 32, 0, 0);
+            mapGrid.loadFromString(String(mapXML.Ground), "", "\n");            
+            var i:Image = new Image(mapGrid.data);
             i.scale = 32;
-            map = new Entity(0, 0, i, _mapGrid);
+            map = new Entity(0, 0, i, mapGrid);
             map.type = "wall";
             add(map);
+			createRamps(mapGrid);
 			
-			createRamps();
-			
+			// Load the platforms.
+			var platformGrid:Grid = new Grid(uint(mapXML.@width), uint(mapXML.@height), 32, 32, 0, 0);
+			platformGrid.loadFromString(String(mapXML.Platform), "", "\n");
+			var platformImage:Image = new Image(platformGrid.data);
+			platformImage.scale = 32;
+			var platforms:Entity = new Entity(0, 0, platformImage, platformGrid);
+			platforms.type = "platform";
+			add(platforms);
+            
+            // Add and position the player.
+            _player.x = mapXML.Entities.Player.@x;
+            _player.y = mapXML.Entities.Player.@y;
             add(_player);
+            
+			// Create enemies.
+            for each (var dog:XML in mapXML.Entities.Dog) {
+                var newEn:Dog = create(Dog) as Dog; // create(e) adds e to world.
+                newEn.x = dog.@x;
+                newEn.y = dog.@y;
+                _enemies.push(newEn);
+            }
+
         }
 		
-		private function createRamps():void {
+		private function createRamps(mapGrid:Grid):void {
 			var ramp:Slope;
-			for (var j:uint = 0; j < _mapGrid.columns; j++)
+			for (var j:uint = 0; j < mapGrid.columns; j++)
 			{
-				for (var i:uint = 0; i < _mapGrid.rows; i++)
+				for (var i:uint = 0; i < mapGrid.rows; i++)
 				{
-					// Empty space with a tile below
-					if (! _mapGrid.getTile(j, i) && _mapGrid.getTile(j, i + 1)) 
+					// Empty space with a tile below.
+					if (! mapGrid.getTile(j, i) && mapGrid.getTile(j, i + 1)) 
 					{
-						 // Solid square to the right, space to left
-						if (_mapGrid.getTile(j + 1, i) && !_mapGrid.getTile(j - 1, i))
+						 // Solid square to the right, space to left.
+						if (mapGrid.getTile(j + 1, i) && !mapGrid.getTile(j - 1, i))
 						{
-							// Type 0 slope goes from bottom-left to top-right
-							ramp = new Slope(j*_mapGrid.tileWidth, i*_mapGrid.tileHeight, 0);
+							// Type 0 slope goes from bottom-left to top-right.
+							ramp = new Slope(j*mapGrid.tileWidth, i*mapGrid.tileHeight, 0);
 							ramp.type = "wall";
 							add(ramp);
 						}
-						// Solid square to the left, space to the right
-						else if (!_mapGrid.getTile(j + 1, i) && _mapGrid.getTile(j - 1, i))
+						// Solid square to the left, space to the right.
+						else if (!mapGrid.getTile(j + 1, i) && mapGrid.getTile(j - 1, i))
 						{
-							// Type 1 slope goes from top-left to bottom-right
-							ramp = new Slope(j*_mapGrid.tileWidth, i*_mapGrid.tileHeight, 1);
+							// Type 1 slope goes from top-left to bottom-right.
+							ramp = new Slope(j*mapGrid.tileWidth, i*mapGrid.tileHeight, 1);
 							ramp.type = "wall";
 							add(ramp);
 						}
@@ -99,27 +121,6 @@ package {
                 camera.y += (dY - 200);
         }
         
-        private function loadMapGrid(mapData:Class):Boolean {
-            var mapXML:XML = FP.getXML(mapData);
-            
-            //Create the map grid
-            _mapGrid = new Grid(uint(mapXML.@width), uint(mapXML.@height), 32, 32, 0, 0);
-            _mapGrid.loadFromString(String(mapXML.Ground), "", "\n");
-            
-            //Add the player at the player start
-            _player = new PlayerLord();
-            _player.x = mapXML.Entities.Player.@x;
-            _player.y = mapXML.Entities.Player.@y;
-            
-            for each (var dog:XML in mapXML.Entities.Dog) {
-                var newEn:Dog = create(Dog) as Dog;
-                newEn.x = dog.@x;
-                newEn.y = dog.@y;
-                _enemies.push(newEn);
-            }
-            
-            return true;
-        }
     }
 
 }

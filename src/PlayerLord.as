@@ -30,6 +30,8 @@ package {
 		private var spell1:Sfx = new Sfx(SPELL1);
 		private var spell2:Sfx = new Sfx(SPELL2);
 		private var spell3:Sfx = new Sfx(SPELL3);
+		
+		private var canJump:Boolean = true;
         
         public function PlayerLord() {
             name = "player";
@@ -38,18 +40,24 @@ package {
             setHitbox(26, 64, -14, 0);
         }
         
-        override public function update():void {
-			if (state == STANDING && this.collide("wall", x, y + 1)) {
+        override public function update():void 
+		{
+			if (state == STANDING && this.collide("wall", x, y + 1)) 
+			{
                 onTheGround = true;
+				canJump = true;
                 yVelocity = 0;
-            } else {
-                onTheGround = false;
-            }
+            } 
+			else onTheGround = false;
 			
-            if (onTheGround) {
-                if (Input.pressed(Key.UP))
-                    yVelocity -= JUMP_POWER;
-            } else {
+            if (Input.pressed(Key.UP) && canJump)
+			{
+				yVelocity = -JUMP_POWER;
+				canJump = false;
+				state = JUMPING;
+            }
+			if (!onTheGround && state != JUMPING) 
+			{
                 if (yVelocity < 16) {
                     if (Input.check(Key.UP))
                         yVelocity += GRAVITY / 2; // Fall slower while jumping.
@@ -65,9 +73,8 @@ package {
                     xVelocity = -MOVE_SPEED;
                 else
                     xVelocity *= 0.6;
-            } else {
-                state = STANDING;
-            }
+            } 
+			else state = STANDING;
             
             moveBy(xVelocity, yVelocity, "wall");
             
@@ -82,15 +89,6 @@ package {
             EricsUtils.oneOf(ow1, ow2, ow3).play();
             
             super.takeDamage(enemy, damage);
-			
-			if (state == DEAD) {
-				die();
-			}
         }
-		
-		public function die():void {
-			// TODO: Play dying animation and silly sound, prevent control
-		}
-    
     }
 }
