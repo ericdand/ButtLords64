@@ -52,7 +52,7 @@ package {
             } else {
                 if (yVelocity < 16) {
                     if (Input.check(Key.UP))
-                        yVelocity += GRAVITY / 2;
+                        yVelocity += GRAVITY / 2; // Fall slower while jumping.
                     else
                         yVelocity += GRAVITY;
                 }

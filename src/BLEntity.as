@@ -53,21 +53,76 @@ package {
             return true;
         }
 		
+		/**
+		 * A mishmash of the original Entity.moveBy() and Noel Berry's 
+		 * Physics.motionx() from the APE library to make slopes work.
+		 * @param	x			Horizontal offset.
+		 * @param	y			Vertical offset.
+		 * @param	solidType	An optional collision type to stop flush against.
+		 * @param	sweep		If sweeping should be used.
+		 */
 		override public function moveBy(x:Number, y:Number, solidType:Object = null, sweep:Boolean = false):void
 		{
-			// Run through a slope
-			for (var s:int = 0; s <= MOVE_SPEED + 1; s ++)
+			if (solidType)
 			{
-				// If we don't hit a solid in the direction we're moving, move.
-				if (!collideTypes(solidType, this.x + x, this.y - s)) 
+				var sign:int,
+					e:Entity;
+				if (x) 
 				{
-					// Move up the slope.
-					y -= s;
-					// Stop checking for slope (so we don't fly up into the air).
-					break;
+					// Run through a slope
+					for (var s:int = 0; s <= MOVE_SPEED + 1; s ++)
+					{
+						e = collideTypes(solidType, this.x + x, this.y - s);
+						if (!e) // Found some free space a little above a solidType!
+						{
+							// Move up the slope.
+							y -= s;
+							// Stop checking for slope (so we don't fly up into the air).
+							break;
+						}
+					}
+					// We collided without being able to move up the slope,
+					// or are doing sweep collision.
+					if (e || sweep)
+					{
+						sign = FP.sign(x);
+						while (x != 0)
+						{
+							if ((e = collideTypes(solidType, this.x + sign, this.y)))
+							{
+								if (moveCollideX(e)) break;
+								else this.x += sign;
+							}
+							else this.x += sign;
+							x -= sign;
+						}
+					}
+					else this.x += x;
+				}
+				if (y != 0)
+				{
+					if (sweep || collideTypes(solidType, this.x, this.y + y))
+					{
+						sign = y > 0 ? 1 : -1;
+						while (y != 0)
+						{
+							if ((e = collideTypes(solidType, this.x, this.y + sign)))
+							{
+								if (moveCollideY(e)) break;
+								else this.y += sign;
+							}
+							else this.y += sign;
+							y -= sign;
+						}
+					}
+					else this.y += y;
 				}
 			}
-			super.moveBy(x, y, solidType, sweep);
+			else
+			{
+				this.x += x;
+				this.y += y;
+			}
 		}
         
         public function takeDamage(enemy:Enemy, damage:uint):void {
