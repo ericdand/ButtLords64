@@ -67,5 +67,8 @@
     <PlayerHouse id="0" x="0" y="640" />
     <Player id="2" x="192" y="928" />
     <MagicTree id="1" x="640" y="0" />
+    <Dog id="3" x="864" y="704" />
+    <Dog id="4" x="960" y="704" />
+    <Dog id="5" x="704" y="800" />
   </Entities>
 </level>

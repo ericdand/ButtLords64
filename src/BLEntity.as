@@ -70,17 +70,16 @@ package {
 					e:Entity;
 				if (x != 0) 
 				{
-					e = collideTypes(solidType, this.x + x, this.y);
-					if (e) // There is something directly in front of us.
+					if (onTheGround)
 					{
-						// Try to run up a slope.
-						for (s = 1; s <= MOVE_SPEED + 1; s++)
+						// Try to run up or down a slope.
+						for (s = MOVE_SPEED + 1; s >= -(MOVE_SPEED + 1); s--)
 						{
-							e = collideTypes(solidType, this.x + x, this.y - s);
-							if (!e) // Found some free space a little above a solidType!
+							e = collideTypes(solidType, this.x + x, this.y + s);
+							if (!e) // Found some free space!
 							{
-								// Move up the slope.
-								y -= s;
+								// Move on top of the slope.
+								y += s;
 								// Stop checking for slope (so we don't fly up into the air).
 								break;
 							}
@@ -137,9 +136,8 @@ package {
             state = (health > 0 ? DAMAGED : DEAD);
 			
             // Get knocked back farther the more damage is taken.
-            var bounceSpeed:Number = 10 * damage;
-            xVelocity = FP.sign(this.x - enemy.x) * bounceSpeed;
-            yVelocity = bounceSpeed * -0.75;
+            xVelocity = FP.sign(this.x - enemy.x) * damage * 16;
+            yVelocity = damage * -8;
             onTheGround = false;
 			
 			if (state == DEAD) {
