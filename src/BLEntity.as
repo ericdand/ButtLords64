@@ -33,14 +33,13 @@ package {
         }
         
         override public function update():void {
-			if (state == STANDING && this.collide("wall", x, y + 1)) {
+			if (state == STANDING && this.collideTypes(Globals.collidableTypes, x, y + 1)) {
                 onTheGround = true;
-                yVelocity = 0;
             } else {
                 onTheGround = false;
             }
             
-            moveBy(xVelocity, yVelocity, "wall");
+            moveBy(xVelocity, yVelocity, Globals.collidableTypes);
         }
         
         override public function moveCollideX(e:Entity):Boolean {
@@ -49,13 +48,32 @@ package {
         }
         
         override public function moveCollideY(e:Entity):Boolean {
-            yVelocity = 0;
-            return true;
+            if (e.type == "wall")
+			{
+				yVelocity = 0;
+				return true;
+			}
+			if (e.type == "platform")
+			{
+				// Only collide with platforms when moving down.
+				/*if (yVelocity > 0)
+				{
+					yVelocity = 0;
+					return true;
+				}*/
+				if (this.collideTypes(Globals.collidableTypes, x, y + 1)
+					&& !this.collideTypes(Globals.collidableTypes, x, y))
+				{
+					yVelocity = 0;
+					return true;
+				}
+			}
+			return false;
         }
 		
 		/**
 		 * A mishmash of the original Entity.moveBy() and Noel Berry's 
-		 * Physics.motionx() from the APE library to make slopes work.
+		 * Physics.motionx() from his APE library to make slopes work.
 		 * @param	x			Horizontal offset.
 		 * @param	y			Vertical offset.
 		 * @param	solidType	An optional collision type to stop flush against.
@@ -63,6 +81,12 @@ package {
 		 */
 		override public function moveBy(x:Number, y:Number, solidType:Object = null, sweep:Boolean = false):void
 		{
+			_moveX += x;
+			_moveY += y;
+			x = Math.round(_moveX);
+			y = Math.round(_moveY);
+			_moveX -= x;
+			_moveY -= y;
 			if (solidType)
 			{
 				var sign:int,
@@ -73,7 +97,7 @@ package {
 					if (onTheGround)
 					{
 						// Try to run up or down a slope.
-						for (s = MOVE_SPEED + 1; s >= -(MOVE_SPEED + 1); s--)
+						for (s = x + 1; s >= -(x + 1); s--)
 						{
 							e = collideTypes(solidType, this.x + x, this.y + s);
 							if (!e) // Found some free space!
@@ -85,9 +109,12 @@ package {
 							}
 						}
 					}
+					else
+					{ // Make sure e is set no matter what.
+						e = collideTypes(solidType, this.x + x, this.y);
+					}
 					
-					// We collided without being able to move up the slope,
-					// or are doing sweep collision.
+					// We collided without being able to move up the slope.
 					if (e || sweep)
 					{
 						sign = FP.sign(x);
@@ -117,7 +144,10 @@ package {
 								if (moveCollideY(e)) break;
 								else this.y += sign;
 							}
-							else this.y += sign;
+							else 
+							{
+								this.y += sign;
+							}
 							y -= sign;
 						}
 					}
@@ -149,5 +179,8 @@ package {
 			this.active = false;
 		}
     
+		// Collision information.
+		/** @private */ private var _moveX:Number = 0;
+		/** @private */ private var _moveY:Number = 0;
     }
 }
