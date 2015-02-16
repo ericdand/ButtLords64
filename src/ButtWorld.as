@@ -15,6 +15,7 @@ package {
         // OGMO-generated level XML.
         [Embed(source = "../ogmo/PlayerHut.oel", mimeType = "application/octet-stream")]
 		private static const LEVEL:Class;
+		private static const SCALE:uint = 32; // 32 pixels per square of the grid.
 		
         protected var map:Entity;
         private var _player:PlayerLord = new PlayerLord();
@@ -26,23 +27,17 @@ package {
             var mapXML:XML = FP.getXML(LEVEL);
 			
             // Load the ground/walls.
-            var mapGrid:Grid = new Grid(uint(mapXML.@width), uint(mapXML.@height), 32, 32, 0, 0);
-            mapGrid.loadFromString(String(mapXML.Ground), "", "\n");            
+            var mapGrid:Grid = new Grid(uint(mapXML.@width), uint(mapXML.@height), SCALE, SCALE, 0, 0);
+            mapGrid.loadFromString(String(mapXML.Ground), "");            
             var i:Image = new Image(mapGrid.data);
-            i.scale = 32;
+            i.scale = SCALE;
             map = new Entity(0, 0, i, mapGrid);
             map.type = "wall";
             add(map);
 			createRamps(mapGrid);
 			
 			// Load the platforms.
-			var platformGrid:Grid = new Grid(uint(mapXML.@width), uint(mapXML.@height), 32, 32, 0, 0);
-			platformGrid.loadFromString(String(mapXML.Platform), "", "\n");
-			var platformImage:Image = new Image(platformGrid.data);
-			platformImage.scale = 32;
-			var platforms:Entity = new Entity(0, 0, platformImage, platformGrid);
-			platforms.type = "platform";
-			add(platforms);
+			loadPlatforms(mapXML);
             
             // Add and position the player.
             _player.x = mapXML.Entities.Player.@x;
@@ -58,6 +53,62 @@ package {
             }
 
         }
+		
+		/**
+		 * Iterate over the platforms string data and add Platform objects to
+		 * the world accordingly.
+		 * 
+		 * This works by incrementing a "platform width" every time a '1' is
+		 * seen in the platform data. When a '0' is seen, if "platform width"
+		 * is nonzero, it is set to zero and a platform of that width is added
+		 * to the world in the place specified.
+		 * @param	mapXML	The OGMO level XML object loaded from FP.getXML.
+		 */
+		private function loadPlatforms(mapXML:XML):void 
+		{
+			var row:Array = String(mapXML.Platform).split("\n"),
+				nRows:uint = row.length,
+				col:Array, 
+				nCols:uint, 
+				x:int, 
+				y:int,
+				platformWidth:uint;
+			
+			for (y = 0; y < nRows; y++)
+			{
+				col = row[y].split(""),
+				nCols = col.length;
+				platformWidth = 0;
+				for (x = 0; x < nCols; x++)
+				{
+					if (col[x] == '1')
+					{
+						platformWidth++;
+					}
+					else if (platformWidth > 0)
+					{
+						createPlatform(x - platformWidth, y, platformWidth);
+						platformWidth = 0;
+					}
+				}
+				
+				// Before going on, don't forget to check for platforms which
+				// touch the far edge of the world.
+				if (platformWidth > 0)
+				{
+					createPlatform(x - platformWidth, y, platformWidth);
+					platformWidth = 0;
+				}
+			}
+		}
+		
+		private function createPlatform(x:int, y:int, width:uint):void 
+		{
+			var platform:Platform = new Platform(width * SCALE);
+			platform.x = x * SCALE;
+			platform.y = y * SCALE;
+			add(platform);
+		}
 		
 		private function createRamps(mapGrid:Grid):void {
 			var ramp:Slope;

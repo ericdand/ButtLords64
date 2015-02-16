@@ -6,7 +6,7 @@ package {
 	import net.flashpunk.utils.Input;
 	import net.flashpunk.utils.Key;
 	
-	import util.EricsUtils;
+	import util.ButtUtils;
     
     public class PlayerLord extends BLEntity {
 		
@@ -21,22 +21,27 @@ package {
         
         override public function update():void 
 		{
-			if (state == STANDING && this.collideTypes(Globals.collidableTypes, x, y + 1)) 
+			if (state == STANDING) 
 			{
-                onTheGround = true;
-				canJump = true;
+				var e:Entity = this.collideTypes(Globals.collidableTypes, x, y + 1);
+                if (int(this.y - this.originY + this.height) == int(e.y - 1))
+				{
+					 // Make sure our feet are *on* the platform.
+					onTheGround = true;
+				}
+				else onTheGround = false;
             } 
 			else onTheGround = false;
 			
-            if (Input.pressed(Key.UP) && canJump)
+            if (Input.pressed(Key.UP) && onTheGround)
 			{
-				yVelocity = -JUMP_POWER;
-				canJump = false;
 				state = JUMPING;
+				yVelocity = -JUMP_POWER;
             }
 			if (!onTheGround && state != JUMPING) 
 			{
-                if (yVelocity < 16) {
+                if (yVelocity < 16) 
+				{
                     if (Input.check(Key.UP))
                         yVelocity += GRAVITY / 2; // Fall slower while jumping.
                     else
@@ -44,8 +49,9 @@ package {
                 }
             }
             
-            if (state == STANDING) {
-                if (Input.check(Key.RIGHT))
+            if (state == STANDING) 
+			{
+                if (true)
                     xVelocity = MOVE_SPEED;
                 else if (Input.check(Key.LEFT))
                     xVelocity = -MOVE_SPEED;
@@ -54,17 +60,17 @@ package {
             } 
 			else state = STANDING;
             
-            moveBy(xVelocity, yVelocity, Globals.collidableTypes);
+            moveBy(xVelocity, yVelocity, Globals.collidableTypes, true);
             
             if (Input.mousePressed) {
-				EricsUtils.oneOf(spell1, spell2, spell3).play();
+				ButtUtils.oneOf(spell1, spell2, spell3).play();
 				
                 var b:Bullet = FP.world.create(Bullet) as Bullet;
             }
         }
         
         override public function takeDamage(enemy:Enemy, damage:uint):void {
-            EricsUtils.oneOf(ow1, ow2, ow3).play();
+            ButtUtils.oneOf(ow1, ow2, ow3).play();
             
             super.takeDamage(enemy, damage);
         }

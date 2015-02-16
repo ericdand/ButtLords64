@@ -4,7 +4,7 @@ package util
 	 * A collection of convenience functions and sugar used in ButtLords 64.
 	 * @author Eric Dand
 	 */
-	public class EricsUtils 
+	public class ButtUtils 
 	{
 		/**
 		 * Pick and return one of the arguments at random.

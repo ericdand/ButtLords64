@@ -6,7 +6,7 @@ package {
 	import net.flashpunk.utils.Input;
 	import net.flashpunk.utils.Key;
 	
-	import util.EricsUtils;
+	import util.ButtUtils;
     
     public class BLEntity extends Entity {
         protected const GRAVITY:Number = 1;
@@ -35,15 +35,20 @@ package {
         override public function update():void {
 			if (state == STANDING && this.collideTypes(Globals.collidableTypes, x, y + 1)) {
                 onTheGround = true;
-            } else {
-                onTheGround = false;
-            }
+            } 
+			else onTheGround = false;
             
-            moveBy(xVelocity, yVelocity, Globals.collidableTypes);
+            moveBy(xVelocity, yVelocity, Globals.collidableTypes, true);
         }
         
         override public function moveCollideX(e:Entity):Boolean {
-            xVelocity = 0;
+            if (e.type == "platform")
+			{
+				// Don't collide with platforms in the X direction.
+				return false;
+			}
+			
+			xVelocity = 0;
             return true;
         }
         
@@ -55,15 +60,13 @@ package {
 			}
 			if (e.type == "platform")
 			{
-				// Only collide with platforms when moving down.
-				/*if (yVelocity > 0)
+				if (this.yVelocity < 0)
 				{
-					yVelocity = 0;
-					return true;
-				}*/
-				if (this.collideTypes(Globals.collidableTypes, x, y + 1)
-					&& !this.collideTypes(Globals.collidableTypes, x, y))
+					return false; // Don't collide if moving up.
+				}
+				else if (int(this.y - this.originY + this.height) == int(e.y - 1))
 				{
+					 // Make sure our feet are *on* the platform.
 					yVelocity = 0;
 					return true;
 				}
@@ -74,84 +77,109 @@ package {
 		/**
 		 * A mishmash of the original Entity.moveBy() and Noel Berry's 
 		 * Physics.motionx() from his APE library to make slopes work.
+		 * 
+		 * Always sweeps.
+		 * 
+		 * @TODO: Currently the player gets stuck in the ground due to the "division" stuff going on. Fix it.
+		 * 
 		 * @param	x			Horizontal offset.
 		 * @param	y			Vertical offset.
 		 * @param	solidType	An optional collision type to stop flush against.
-		 * @param	sweep		If sweeping should be used.
+		 * @param	sweep		Ignored.
 		 */
-		override public function moveBy(x:Number, y:Number, solidType:Object = null, sweep:Boolean = false):void
+		override public function moveBy(dx:Number, dy:Number, solidType:Object = null, sweep:Boolean = true):void
 		{
-			_moveX += x;
-			_moveY += y;
-			x = Math.round(_moveX);
-			y = Math.round(_moveY);
-			_moveX -= x;
-			_moveY -= y;
+			_moveX += dx;
+			_moveY += dy;
+			dx = Math.round(_moveX);
+			dy = Math.round(_moveY);
+			_moveX -= dx;
+			_moveY -= dy;
 			if (solidType)
 			{
 				var sign:int,
+					division:Number,
 					s:int,
 					e:Entity;
-				if (x != 0) 
+				
+				// Find the longer side of the triangle.
+				if (Math.abs(dx) < Math.abs(dy)) // greater y velocity.
 				{
-					if (onTheGround)
+					// Divide the shorter side to have the same number
+					// of subdivisions as the longer side has pixels.
+					division = dx / Math.abs(dy);
+					sign = FP.sign(dy);
+					
+					while (dy != 0)
 					{
-						// Try to run up or down a slope.
-						for (s = x + 1; s >= -(x + 1); s--)
+						e = collideTypes(solidType, 
+							int(this.x + division), 
+							this.y + sign);
+							
+						if (e)
 						{
-							e = collideTypes(solidType, this.x + x, this.y + s);
-							if (!e) // Found some free space!
+							if (collideWith(e, this.x + division, this.y) 
+								&& moveCollideX(e))
 							{
-								// Move on top of the slope.
-								y += s;
-								// Stop checking for slope (so we don't fly up into the air).
+								if (collideWith(e, this.x, this.y + sign))
+									moveCollideY(e); // Don't forget to check for y collision too.
 								break;
 							}
-						}
-					}
-					else
-					{ // Make sure e is set no matter what.
-						e = collideTypes(solidType, this.x + x, this.y);
-					}
-					
-					// We collided without being able to move up the slope.
-					if (e || sweep)
-					{
-						sign = FP.sign(x);
-						while (x != 0)
-						{
-							if ((e = collideTypes(solidType, this.x + sign, this.y)))
+							if (collideWith(e, this.x, this.y + sign) 
+								&& moveCollideY(e))
 							{
-								if (moveCollideX(e)) break;
-								else this.x += sign;
+								break;
 							}
-							else this.x += sign;
-							x -= sign;
+							// If neither moveCollide function reports
+							// a collision, bravely move on.
+							this.x += division;
+							this.y += sign;
 						}
+						else
+						{
+							this.x += division;
+							this.y += sign;
+						}
+						dy -= sign;
 					}
-					else this.x += x;
 				}
-				
-				if (y != 0)
+				else if (dx != 0) // Greater or equal x velocity. Make sure we're moving at all.
 				{
-					if (sweep || collideTypes(solidType, this.x, this.y + y))
+					division = dy / Math.abs(dx);
+					sign = FP.sign(dx);
+					
+					while (dx != 0)
 					{
-						sign = y > 0 ? 1 : -1;
-						while (y != 0)
+						e = collideTypes(solidType,
+							this.x + sign,
+							int(this.y + division));
+							
+						if (e)
 						{
-							if ((e = collideTypes(solidType, this.x, this.y + sign)))
+							if (collideWith(e, this.x + sign, this.y) 
+								&& moveCollideX(e))
 							{
-								if (moveCollideY(e)) break;
-								else this.y += sign;
+								if (collideWith(e, this.x, this.y + division))
+									moveCollideY(e); // Don't forget to check for y collision too.
+								break;
 							}
-							else 
+							if (collideWith(e, this.x, this.y + division) 
+								&& moveCollideY(e))
 							{
-								this.y += sign;
+								break;
 							}
-							y -= sign;
+							// If neither moveCollide function reports
+							// a collision, bravely move on.
+							this.x += division;
+							this.y += sign;
 						}
+						else
+						{
+							this.x += sign;
+							this.y += division;
+						}
+						dx -= sign;
 					}
-					else this.y += y;
 				}
 			}
 			else
