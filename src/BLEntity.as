@@ -98,87 +98,106 @@ package {
 			if (solidType)
 			{
 				var sign:int,
-					division:Number,
+					remainder:Number,
 					s:int,
-					e:Entity;
+					e:Entity,
+					_dx:Number,
+					_dy:Number;
 				
 				// Find the longer side of the triangle.
-				if (Math.abs(dx) < Math.abs(dy)) // greater y velocity.
+				if (Math.abs(dx) < Math.abs(dy)) // Y is the longer side, greater y velocity.
 				{
 					// Divide the shorter side to have the same number
 					// of subdivisions as the longer side has pixels.
-					division = dx / Math.abs(dy);
+					remainder = (dx / Math.abs(dy)); // division width is (dx / Math.abs(dy)
 					sign = FP.sign(dy);
 					
 					while (dy != 0)
 					{
-						e = collideTypes(solidType, 
-							int(this.x + division), 
-							this.y + sign);
+						e = collideTypes(solidType,
+							this.x + Math.round(remainder),
+							this.y + sign); // Check for an entity 1 px forward.
 							
 						if (e)
 						{
-							if (collideWith(e, this.x + division, this.y) 
-								&& moveCollideX(e))
+							if (collideWith(e, this.x + Math.round(remainder), this.y) 
+								&& moveCollideX(e)) // Collides in the x direction?
 							{
 								if (collideWith(e, this.x, this.y + sign))
 									moveCollideY(e); // Don't forget to check for y collision too.
 								break;
 							}
-							if (collideWith(e, this.x, this.y + sign) 
-								&& moveCollideY(e))
+							else if (collideWith(e, this.x, this.y + sign) 
+								&& moveCollideY(e)) // Collides in the y direction?
 							{
 								break;
 							}
+							
 							// If neither moveCollide function reports
 							// a collision, bravely move on.
-							this.x += division;
 							this.y += sign;
 						}
 						else
 						{
-							this.x += division;
+							while (Math.round(remainder) >= 1)
+							{
+								remainder--;
+								this.x++;
+							}
 							this.y += sign;
 						}
+						
 						dy -= sign;
+						remainder += dx / Math.abs(dy);
 					}
 				}
 				else if (dx != 0) // Greater or equal x velocity. Make sure we're moving at all.
 				{
-					division = dy / Math.abs(dx);
+					remainder = dy / Math.abs(dx);
 					sign = FP.sign(dx);
 					
 					while (dx != 0)
 					{
 						e = collideTypes(solidType,
-							this.x + sign,
-							int(this.y + division));
+							Math.round(this.x + sign),
+							this.y + Math.round(remainder)); // Check for an entity 1 px forward.
 							
 						if (e)
 						{
-							if (collideWith(e, this.x + sign, this.y) 
-								&& moveCollideX(e))
+							if (collideWith(e, Math.round(this.x + sign) , this.y) 
+								&& moveCollideX(e)) // Collides in the x direction?
 							{
-								if (collideWith(e, this.x, this.y + division))
+								if (collideWith(e, this.x, this.y + Math.round(remainder)))
 									moveCollideY(e); // Don't forget to check for y collision too.
 								break;
 							}
-							if (collideWith(e, this.x, this.y + division) 
-								&& moveCollideY(e))
+							else if (collideWith(e, this.x, this.y + Math.round(remainder)) 
+								&& moveCollideY(e)) // Collides in the y direction?
 							{
 								break;
 							}
+							
 							// If neither moveCollide function reports
 							// a collision, bravely move on.
-							this.x += division;
+							while (Math.round(remainder) >= 1)
+							{
+								remainder--;
+								this.y++;
+							}
 							this.y += sign;
 						}
 						else
 						{
+							while (Math.round(remainder) >= 1)
+							{
+								remainder--;
+								this.y++;
+							}
 							this.x += sign;
-							this.y += division;
 						}
+						
 						dx -= sign;
+						remainder += dy / Math.abs(dx);
 					}
 				}
 			}

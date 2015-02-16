@@ -51,7 +51,7 @@ package {
             
             if (state == STANDING) 
 			{
-                if (true)
+                if (Input.check(Key.RIGHT))
                     xVelocity = MOVE_SPEED;
                 else if (Input.check(Key.LEFT))
                     xVelocity = -MOVE_SPEED;
