@@ -1,5 +1,6 @@
 package {
     import flash.geom.Rectangle;
+	import net.flashpunk.graphics.Text;
     import net.flashpunk.graphics.Tilemap;
     import net.flashpunk.masks.Grid;
     import net.flashpunk.World;
@@ -20,6 +21,9 @@ package {
         protected var map:Entity;
         private var _player:PlayerLord = new PlayerLord();
         private var _enemies:Vector.<Enemy> = new Vector.<Enemy>();
+		
+		private var text1:Entity;
+		private var text2:Entity;
         
         public function ButtWorld() {
             trace("Initializing ButtWorld.");
@@ -52,6 +56,10 @@ package {
                 _enemies.push(newEn);
             }
 
+			text1 = new Entity(0, 0, new Text("text1"));
+			text2 = new Entity(0, 50, new Text("text2"));
+			add(text1);
+			add(text2);
         }
 		
 		/**
@@ -124,7 +132,6 @@ package {
 						{
 							// Type 0 slope goes from bottom-left to top-right.
 							ramp = new Slope(j*mapGrid.tileWidth, i*mapGrid.tileHeight, 0);
-							ramp.type = "wall";
 							add(ramp);
 						}
 						// Solid square to the left, space to the right.
@@ -132,7 +139,6 @@ package {
 						{
 							// Type 1 slope goes from top-left to bottom-right.
 							ramp = new Slope(j*mapGrid.tileWidth, i*mapGrid.tileHeight, 1);
-							ramp.type = "wall";
 							add(ramp);
 						}
 					}
@@ -144,6 +150,8 @@ package {
             super.update();
             
             followPlayerWithCamera();
+			
+			updateText();
             
             for each (var enemy:Enemy in _enemies) {
                 var bullet:Bullet = enemy.collide("bullet", enemy.x, enemy.y) as Bullet;
@@ -172,6 +180,18 @@ package {
                 camera.y += (dY - 200);
         }
         
+		private function updateText():void 
+		{
+			text1.x = camera.x + 5;
+			text1.y = camera.y + 5;
+			var t1txt:Text = text1.graphic as Text;
+			t1txt.text = _player.yVelocity.toString();
+			
+			text2.x = camera.x + 5;
+			text2.y = camera.y + 25;
+			var t2txt:Text = text2.graphic as Text;
+			t2txt.text = _player.onTheGround ? "on the ground" : "in the air";
+		}
     }
 
 }

@@ -33,7 +33,10 @@ package Solids
 			slopeMask = new Pixelmask(slope, 0, 0);
 			mask = slopeMask;
 			
-			this.graphic = new Image(slope);
+			var img:Image = new Image(slope);
+			this.graphic = img;
+			
+			this.type = "wall";
 			
 			//hide us - we don't need to ever be updated
 			active = false;

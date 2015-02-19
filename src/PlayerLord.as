@@ -24,7 +24,8 @@ package {
 			if (state == STANDING) 
 			{
 				var e:Entity = this.collideTypes(Globals.collidableTypes, x, y + 1);
-                if (int(this.y - this.originY + this.height) == int(e.y - 1))
+                if (e && (e.type == "wall"
+					|| int(this.y - this.originY + this.height) == int(e.y - e.originY - 1)))
 				{
 					 // Make sure our feet are *on* the platform.
 					onTheGround = true;
@@ -40,6 +41,7 @@ package {
             }
 			if (!onTheGround && state != JUMPING) 
 			{
+				// Apply gravity.
                 if (yVelocity < 16) 
 				{
                     if (Input.check(Key.UP))

@@ -20,11 +20,11 @@ package {
 		protected static const DEAD:uint = 1 << 3;
 		protected static const JUMPING:uint = 1 << 4;
         
-        protected var xVelocity:Number = 0;
-        protected var yVelocity:Number = 0;
-        protected var onTheGround:Boolean = false;
-        protected var health:int = 10;
-        protected var state:uint;
+        internal var xVelocity:Number = 0;
+        internal var yVelocity:Number = 0;
+        internal var onTheGround:Boolean = false;
+        internal var health:int = 10;
+        internal var state:uint;
         
 		//  TODO: Make a default image
         public function BLEntity() {
@@ -80,7 +80,7 @@ package {
 		 * 
 		 * Always sweeps.
 		 * 
-		 * @TODO: Currently the player gets stuck in the ground due to the "division" stuff going on. Fix it.
+		 * @TODO: Currently the player gets stuck on ramps. Not quite sure why. Fix it.
 		 * 
 		 * @param	x			Horizontal offset.
 		 * @param	y			Vertical offset.
@@ -159,12 +159,12 @@ package {
 					while (dx != 0)
 					{
 						e = collideTypes(solidType,
-							Math.round(this.x + sign),
+							this.x + sign,
 							this.y + Math.round(remainder)); // Check for an entity 1 px forward.
 							
 						if (e)
 						{
-							if (collideWith(e, Math.round(this.x + sign) , this.y) 
+							if (collideWith(e, this.x + sign , this.y) 
 								&& moveCollideX(e)) // Collides in the x direction?
 							{
 								if (collideWith(e, this.x, this.y + Math.round(remainder)))
