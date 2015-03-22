@@ -26,7 +26,7 @@ package {
         internal var health:int = 10;
         internal var state:uint;
         
-		//  TODO: Make a default image
+		/// @TODO: Make a default image
         public function BLEntity() {
             name = "ButtLords64Entity";
             setHitbox(32, 32, -16, 0);
@@ -97,11 +97,11 @@ package {
 			if (solidType)
 			{
 				var sign:int,
+					divisionSize:Number,
 					remainder:Number,
+					roundedRemainder:int,
 					s:int,
-					e:Entity,
-					_dx:Number,
-					_dy:Number;
+					e:Entity;
 				
 				// Find the longer side of the triangle.
 				if (Math.abs(dx) < Math.abs(dy))
@@ -109,84 +109,74 @@ package {
 					// Y is the longer side, greater y velocity.
 					// Divide the shorter side to have the same number
 					// of subdivisions as the longer side has pixels.
-					// "remainder" is one subdivision's size.
-					remainder = (dx / Math.abs(dy));
+					divisionSize = (dx / Math.abs(dy));
+					remainder = divisionSize;
 					sign = FP.sign(dy);
 					
 					while (dy != 0)
 					{
+						roundedRemainder = Math.round(remainder);
 						// Check for an entity 1 px forward.
 						e = collideTypes(solidType,
-							this.x + Math.round(remainder),
+							this.x + roundedRemainder,
 							this.y + sign);
 							
 						if (e)
 						{
-							if (tryMove(e, Math.round(remainder), sign))
+							if (tryMove(e, roundedRemainder, sign))
 							{							
 								// If there is no collision, bravely move on.
-								while (Math.round(remainder) >= 1)
-								{
-									remainder--;
-									this.x++;
-								}
+								remainder -= roundedRemainder;
+								this.x += roundedRemainder;
 								this.y += sign;	
 							}
 							else break;
 						}
 						else
 						{
-							while (Math.round(remainder) >= 1)
-							{
-								remainder--;
-								this.x++;
-							}
+							remainder -= roundedRemainder;
+							this.x += roundedRemainder;
 							this.y += sign;
 						}
 						
 						dy -= sign;
-						remainder += dx / Math.abs(dy);
+						remainder += divisionSize;
 					}
 				}
-				else if (dx != 0) // Greater or equal x velocity. Make sure we're moving at all.
-				{
-					remainder = dy / Math.abs(dx);
+				else if (dx != 0)
+				{	// Greater or equal x velocity. 
+					// We check (dx != 0) to make sure we're moving at all.
+					divisionSize = dy / Math.abs(dx);
+					remainder = divisionSize;
 					sign = FP.sign(dx);
 					
 					while (dx != 0)
 					{
+						roundedRemainder = Math.round(remainder);
+						 // Check for an entity 1 px forward.
 						e = collideTypes(solidType,
 							this.x + sign,
-							this.y + Math.round(remainder)); // Check for an entity 1 px forward.
+							this.y + roundedRemainder);
 							
 						if (e)
 						{
-							
 							if (tryMove(e, sign, Math.round(remainder)))
 							{
-								// If neither moveCollide function reports
-								// a collision, bravely move on.
-								while (Math.round(remainder) >= 1)
-								{
-									remainder--;
-									this.y++;
-								}
+								remainder -= roundedRemainder;
+								this.y += roundedRemainder;
 								this.x += sign;
 							}
 							else break;
 						}
 						else
 						{
-							while (Math.round(remainder) >= 1)
-							{
-								remainder--;
-								this.y++;
-							}
+							remainder -= roundedRemainder;
+							this.y += roundedRemainder;
 							this.x += sign;
 						}
 						
 						dx -= sign;
-						remainder += dy / Math.abs(dx);
+						remainder += divisionSize;
 					}
 				}
 			}
