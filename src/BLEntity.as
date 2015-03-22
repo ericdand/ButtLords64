@@ -80,14 +80,13 @@ package {
 		 * 
 		 * Always sweeps.
 		 * 
-		 * @TODO: Currently the player gets stuck on ramps. Not quite sure why. Fix it.
-		 * 
 		 * @param	x			Horizontal offset.
 		 * @param	y			Vertical offset.
 		 * @param	solidType	An optional collision type to stop flush against.
 		 * @param	sweep		Ignored.
 		 */
-		override public function moveBy(dx:Number, dy:Number, solidType:Object = null, sweep:Boolean = true):void
+		override public function moveBy(dx:Number, dy:Number, 
+				solidType:Object = null, sweep:Boolean = true):void
 		{
 			_moveX += dx;
 			_moveY += dy;
@@ -105,37 +104,35 @@ package {
 					_dy:Number;
 				
 				// Find the longer side of the triangle.
-				if (Math.abs(dx) < Math.abs(dy)) // Y is the longer side, greater y velocity.
+				if (Math.abs(dx) < Math.abs(dy))
 				{
+					// Y is the longer side, greater y velocity.
 					// Divide the shorter side to have the same number
 					// of subdivisions as the longer side has pixels.
-					remainder = (dx / Math.abs(dy)); // division width is (dx / Math.abs(dy)
+					// "remainder" is one subdivision's size.
+					remainder = (dx / Math.abs(dy));
 					sign = FP.sign(dy);
 					
 					while (dy != 0)
 					{
+						// Check for an entity 1 px forward.
 						e = collideTypes(solidType,
 							this.x + Math.round(remainder),
-							this.y + sign); // Check for an entity 1 px forward.
+							this.y + sign);
 							
 						if (e)
 						{
-							if (collideWith(e, this.x + Math.round(remainder), this.y) 
-								&& moveCollideX(e)) // Collides in the x direction?
-							{
-								if (collideWith(e, this.x, this.y + sign))
-									moveCollideY(e); // Don't forget to check for y collision too.
-								break;
+							if (tryMove(e, Math.round(remainder), sign))
+							{							
+								// If there is no collision, bravely move on.
+								while (Math.round(remainder) >= 1)
+								{
+									remainder--;
+									this.x++;
+								}
+								this.y += sign;	
 							}
-							else if (collideWith(e, this.x, this.y + sign) 
-								&& moveCollideY(e)) // Collides in the y direction?
-							{
-								break;
-							}
-							
-							// If neither moveCollide function reports
-							// a collision, bravely move on.
-							this.y += sign;
+							else break;
 						}
 						else
 						{
@@ -164,27 +161,19 @@ package {
 							
 						if (e)
 						{
-							if (collideWith(e, this.x + sign , this.y) 
-								&& moveCollideX(e)) // Collides in the x direction?
-							{
-								if (collideWith(e, this.x, this.y + Math.round(remainder)))
-									moveCollideY(e); // Don't forget to check for y collision too.
-								break;
-							}
-							else if (collideWith(e, this.x, this.y + Math.round(remainder)) 
-								&& moveCollideY(e)) // Collides in the y direction?
-							{
-								break;
-							}
 							
-							// If neither moveCollide function reports
-							// a collision, bravely move on.
-							while (Math.round(remainder) >= 1)
+							if (tryMove(e, sign, Math.round(remainder)))
 							{
-								remainder--;
-								this.y++;
+								// If neither moveCollide function reports
+								// a collision, bravely move on.
+								while (Math.round(remainder) >= 1)
+								{
+									remainder--;
+									this.y++;
+								}
+								this.x += sign;
 							}
-							this.y += sign;
+							else break;
 						}
 						else
 						{
@@ -206,6 +195,39 @@ package {
 				this.x += x;
 				this.y += y;
 			}
+		}
+		
+		/**
+		 * Checks for collision with an entity, calling moveCollide if needed.
+		 * 
+		 * This method is a helper for moveBy. It checks if there is a
+		 * collision in the x direction, then in the y direction. If there is,
+		 * it calls moveCollide to be sure, and then returns the result.
+		 * 
+		 * This method will always call moveCollideY if a collision is
+		 * suspected in the y direction, even if a collision has been found in
+		 * the x direction already.
+		 * 
+		 * @param	e	The entity to collide against.
+		 * @param	dx	The distance to move in the x direciton.
+		 * @param	dy	The distance to move in the y direction.
+		 * @return true if the player can move, false if they collided.
+		 */
+		private function tryMove(e:Entity, dx:int, dy:int):Boolean
+		{
+			if (collideWith(e, this.x + dx, this.y) 
+				&& moveCollideX(e)) // Collides in the x direction?
+			{
+				if (collideWith(e, this.x, this.y + dy))
+					moveCollideY(e); // Don't forget to check for y collision too.
+				return false;
+			}
+			else if (collideWith(e, this.x, this.y + dy) 
+				&& moveCollideY(e)) // Collides in the y direction?
+			{
+				return false;
+			}
+			return true;
 		}
         
         public function takeDamage(enemy:Enemy, damage:uint):void {
