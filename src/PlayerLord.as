@@ -25,7 +25,7 @@ package {
 			{
 				var e:Entity = this.collideTypes(Globals.collidableTypes, x, y + 1);
                 if (e && (e.type == "wall"
-					|| int(this.y - this.originY + this.height) == int(e.y - e.originY - 1)))
+					|| int(this.y - this.originY + this.height) == int(e.y)))
 				{
 					 // Make sure our feet are *on* the platform.
 					onTheGround = true;

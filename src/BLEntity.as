@@ -75,8 +75,11 @@ package {
         }
 		
 		/**
-		 * A mishmash of the original Entity.moveBy() and Noel Berry's 
-		 * Physics.motionx() from his APE library to make slopes work.
+		 * Move the entity by (dx, dy), colliding with solidType.
+		 * 
+		 * A mishmash of the original Entity.moveBy(), Noel Berry's 
+		 * Physics.motionx() from his APE library (to make slopes work),
+		 * and a home-rolled sweep-checking algorithm.
 		 * 
 		 * Always sweeps.
 		 * 
@@ -106,7 +109,7 @@ package {
 				// Find the longer side of the triangle.
 				if (Math.abs(dx) < Math.abs(dy))
 				{
-					// Y is the longer side, greater y velocity.
+					// Greater y velocity: Y is the longer side.
 					// Divide the shorter side to have the same number
 					// of subdivisions as the longer side has pixels.
 					divisionSize = (dx / Math.abs(dy));
@@ -115,6 +118,7 @@ package {
 					
 					while (dy != 0)
 					{
+						// roundedRemainder will always be 0, -1, or 1.
 						roundedRemainder = Math.round(remainder);
 						// Check for an entity 1 px forward.
 						e = collideTypes(solidType,
@@ -160,7 +164,7 @@ package {
 							
 						if (e)
 						{
-							if (tryMove(e, sign, Math.round(remainder)))
+							if (tryMove(e, sign, roundedRemainder))
 							{
 								remainder -= roundedRemainder;
 								this.y += roundedRemainder;
@@ -191,12 +195,9 @@ package {
 		 * Checks for collision with an entity, calling moveCollide if needed.
 		 * 
 		 * This method is a helper for moveBy. It checks if there is a
-		 * collision in the x direction, then in the y direction. If there is,
-		 * it calls moveCollide to be sure, and then returns the result.
-		 * 
-		 * This method will always call moveCollideY if a collision is
-		 * suspected in the y direction, even if a collision has been found in
-		 * the x direction already.
+		 * collision in the x direction, then in the y direction. If there is
+		 * a collision, it returns false. Otherwise, it returns true to show
+		 * that the player can move.
 		 * 
 		 * @param	e	The entity to collide against.
 		 * @param	dx	The distance to move in the x direciton.
@@ -205,19 +206,37 @@ package {
 		 */
 		private function tryMove(e:Entity, dx:int, dy:int):Boolean
 		{
-			if (collideWith(e, this.x + dx, this.y) 
-				&& moveCollideX(e)) // Collides in the x direction?
+			var retval:Boolean = true;
+			
+			if (collideWith(e, this.x + dx, this.y)) // Collides in the x direction?
 			{
-				if (collideWith(e, this.x, this.y + dy))
-					moveCollideY(e); // Don't forget to check for y collision too.
-				return false;
+				// Don't collide with platforms in the X direction.
+				if (e.type != "platform")
+				{
+					xVelocity = 0;
+					retval = false;
+				}
 			}
-			else if (collideWith(e, this.x, this.y + dy) 
-				&& moveCollideY(e)) // Collides in the y direction?
+			if (collideWith(e, this.x, this.y + dy)) // Collides in the y direction?
 			{
-				return false;
+				if (e.type == "platform")
+				{
+					// Only collide if moving down.
+					if (this.yVelocity >= 0
+						&& int(this.y + dy - this.originY + this.height) == int(e.y + 1))
+					{
+						// Make sure our feet are *on* the platform.
+						yVelocity = 0;
+						retval = false;
+					}
+				}
+				else
+				{
+					yVelocity = 0;
+					retval = false;
+				}
 			}
-			return true;
+			return retval;
 		}
         
         public function takeDamage(enemy:Enemy, damage:uint):void {
