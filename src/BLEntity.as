@@ -127,7 +127,7 @@ package {
 							
 						if (e)
 						{
-							if (tryMove(e, roundedRemainder, sign))
+							if (tryMoveAndClimb(e, roundedRemainder, sign))
 							{							
 								// If there is no collision, bravely move on.
 								remainder -= roundedRemainder;
@@ -164,7 +164,7 @@ package {
 							
 						if (e)
 						{
-							if (tryMove(e, sign, roundedRemainder))
+							if (tryMoveAndClimb(e, sign, roundedRemainder))
 							{
 								remainder -= roundedRemainder;
 								this.y += roundedRemainder;
@@ -192,19 +192,21 @@ package {
 		}
 		
 		/**
-		 * Checks for collision with an entity, calling moveCollide if needed.
+		 * Checks for collision with an entity, and moves the player up, if
+		 * necessary, to climb slopes.
 		 * 
 		 * This method is a helper for moveBy. It checks if there is a
 		 * collision in the x direction, then in the y direction. If there is
-		 * a collision, it returns false. Otherwise, it returns true to show
-		 * that the player can move.
+		 * a collision in the x direction, it checks if there would be one in
+		 * the same position 1px higher. If there is space, it moves the player
+		 * up by 1px. This allows the player to climb slopes.
 		 * 
 		 * @param	e	The entity to collide against.
 		 * @param	dx	The distance to move in the x direciton.
 		 * @param	dy	The distance to move in the y direction.
-		 * @return true if the player can move, false if they collided.
+		 * @return 	"true" if the player can move, "false" if they collided.
 		 */
-		private function tryMove(e:Entity, dx:int, dy:int):Boolean
+		private function tryMoveAndClimb(e:Entity, dx:int, dy:int):Boolean
 		{
 			var retval:Boolean = true;
 			
@@ -213,8 +215,17 @@ package {
 				// Don't collide with platforms in the X direction.
 				if (e.type != "platform")
 				{
-					xVelocity = 0;
-					retval = false;
+					// Try to climb a slope.
+					if (!collideWith(e, this.x + dx, this.y - 1))
+					{
+						// There was room! Move up 1px into it.
+						this.y -= 1;
+					}
+					else
+					{
+						xVelocity = 0;
+						retval = false;
+					}
 				}
 			}
 			if (collideWith(e, this.x, this.y + dy)) // Collides in the y direction?
