@@ -2,6 +2,7 @@ package {
 	import net.flashpunk.Entity;
 	import net.flashpunk.FP;
 	import net.flashpunk.graphics.Image;
+	import net.flashpunk.graphics.Spritemap;
 	import net.flashpunk.Sfx;
 	import net.flashpunk.utils.Input;
 	import net.flashpunk.utils.Key;
@@ -13,10 +14,13 @@ package {
 		private var canJump:Boolean = true;
         
         public function PlayerLord() {
-            name = "player";
+            this.name = "player";
             
-            graphic = new Image(PLAYER);
-            setHitbox(26, 64, -14, 0);
+			spritemap.add("stand", [0]);
+			spritemap.add("run", [0, 1], 4);
+			this.graphic = spritemap;
+			
+            setHitbox(26, 55, 0, -9);
         }
         
         override public function update():void 
@@ -54,11 +58,20 @@ package {
             if (state == STANDING) 
 			{
                 if (Input.check(Key.RIGHT))
+				{
                     xVelocity = MOVE_SPEED;
+					this.spritemap.play("run");
+				}	
                 else if (Input.check(Key.LEFT))
+				{
                     xVelocity = -MOVE_SPEED;
+					this.spritemap.play("run");
+				}
                 else
+				{
                     xVelocity *= 0.6;
+					this.spritemap.play("stand");
+				}
             } 
 			else state = STANDING;
             
@@ -78,7 +91,7 @@ package {
         }
 		
 		/// @private Assets.
-        [Embed(source="assets/ButtLord64.png")]
+        [Embed(source="assets/buttwizard-anim-64.png")]
         private const PLAYER:Class;
         [Embed(source="sound/ow1.mp3")]
         private const OW1:Class;
@@ -99,5 +112,7 @@ package {
 		private var spell1:Sfx = new Sfx(SPELL1);
 		private var spell2:Sfx = new Sfx(SPELL2);
 		private var spell3:Sfx = new Sfx(SPELL3);
+		
+		private var spritemap:Spritemap = new Spritemap(PLAYER, 32, 64);
     }
 }
