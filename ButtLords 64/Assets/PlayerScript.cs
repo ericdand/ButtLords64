@@ -3,6 +3,9 @@ using System.Collections;
 
 public class PlayerScript : MonoBehaviour {
 
+	// Public so it can be set from the Unity editor.
+	public WaypointContainerScript waypointContainer;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -10,6 +13,7 @@ public class PlayerScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		// Go to the next checkpoint.
+		// Go to the next waypoint.
+
 	}
 }
