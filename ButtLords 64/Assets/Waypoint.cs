@@ -14,8 +14,7 @@ public class Waypoint : MonoBehaviour {
 	
 	}
 
-	// TODO: Is making a new Vector2 every time necessary?
 	public Vector2 Position() {
-		return transform.position;
+		return this.transform.position;
 	}
 }
