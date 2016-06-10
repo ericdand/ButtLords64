@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\PlayerScript.cs" />
+     <Compile Include="Assets\SmoothDampFollowPlayer.cs" />
      <Compile Include="Assets\Waypoint.cs" />
      <Compile Include="Assets\WaypointContainerScript.cs" />
  <Reference Include="UnityEngine.Networking">
