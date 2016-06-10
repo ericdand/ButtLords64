@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Waypoint : MonoBehaviour {
 
-	public bool isVisited;
+	internal bool isVisited;
 
 	// Use this for initialization
 	void Start () {
