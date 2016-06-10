@@ -19,7 +19,7 @@ public class PlayerScript : MonoBehaviour {
 		// Go to the next waypoint.
 		var waypoint = waypointContainer.GetNextWaypoint();
 		if (waypoint != null) {
-			acceleration = (waypoint.Position() - this.transform.position);
+			acceleration = (waypoint.Position() - (Vector2)this.transform.position);
 			// Debug.Log (acceleration);
 		}
 		rb2d.AddForce(acceleration); // Use MovePosition(position) instead.

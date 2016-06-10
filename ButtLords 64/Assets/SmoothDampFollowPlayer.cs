@@ -5,7 +5,7 @@ public class SmoothDampFollowPlayer : MonoBehaviour {
 
 	public Transform target;
 
-	private Vector2 velocity;
+	private Vector3 velocity;
 
 	// Use this for initialization
 	void Start () {
@@ -14,6 +14,8 @@ public class SmoothDampFollowPlayer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		transform.position = Vector2.SmoothDamp (transform.position, target.position, ref velocity, 0.15f);
+		var target3d = new Vector3 (target.position.x, target.position.y, this.transform.position.z);
+		this.transform.position = Vector3.SmoothDamp (
+			this.transform.position, target3d, ref velocity, 0.15f);
 	}
 }
