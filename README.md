@@ -18,4 +18,5 @@ Use of `this` keyword
 =====================
 
 Use the `this` keyword for attributes which are not explicitly declared in the
-same class, such as those inherited from parent classes.
+same class, such as those inherited from parent classes. Use of `this` for
+member variables declared in the same class is optional (and usually omitted).
