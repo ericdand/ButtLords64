@@ -15,7 +15,7 @@ public class Waypoint : MonoBehaviour {
 	}
 
 	private bool withinEpsilon (Vector3 a, Vector3 b, float e) {
-		Debug.Log("dx: " + (a.x - b.x) + "\ndy: " + (a.y - b.y) + "\ndz: " + (a.z + b.z));
+		// Debug.Log("dx: " + (a.x - b.x) + "\ndy: " + (a.y - b.y) + "\ndz: " + (a.z + b.z));
 		return (Mathf.Abs (a.x - b.x) <= e
 		&& Mathf.Abs (a.y - b.y) <= e
 		&& Mathf.Abs (a.z - b.z) <= e);
@@ -27,7 +27,7 @@ public class Waypoint : MonoBehaviour {
 			var playerWidth = player.GetComponent<BoxCollider2D> ().size.x;
 			if (withinEpsilon (player.position, this.transform.position, playerWidth / 2)) {
 				isVisited = true;
-				Debug.Log ("I AM VISITED!");
+				// Debug.Log ("I AM VISITED!");
 			}
 		}
 	}
