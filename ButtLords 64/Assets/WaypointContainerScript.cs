@@ -3,13 +3,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+// TODO: Pull waypoints from children rather than having to explicitly define it in the properties.
+
 public class WaypointContainerScript : MonoBehaviour, IEnumerable {
 
 	// Public so it can be populated from the IDE.
 	public Waypoint[] waypoints;
 
 	// lastNext is guaranteed to have been the index of the next waypoint last time GetNextWaypoint was called.
-	// Used to allow us to keep track of the next waypoint.
+	// It is used to allow us to keep track of the next waypoint.
 	private int lastNext;
 
 	// Use this for initialization
@@ -25,8 +27,12 @@ public class WaypointContainerScript : MonoBehaviour, IEnumerable {
 	// GetNextWaypoint returns the lowest-numbered waypoint which has not yet been visited.
 	// Returns null after the final waypoint.
 	public Waypoint GetNextWaypoint() {
-		while (waypoints[lastNext].isVisited) {
+		if (lastNext >= waypoints.Length)
+			return null;
+		
+		if (waypoints[lastNext].isVisited) {
 			lastNext++;
+			Debug.LogFormat ("Visiting waypoint {0}", lastNext);
 		}
 		try {
 			return waypoints[lastNext];
